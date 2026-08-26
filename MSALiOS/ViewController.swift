@@ -35,6 +35,7 @@ class ViewController: UIViewController, UITextFieldDelegate, URLSessionDelegate 
     // Update the below to your client ID you received in the portal. The below is for running the demo only
     let kClientID = "66855f8a-60cd-445e-a9bb-8cd8eadbd3fa"
     let kGraphEndpoint = "https://graph.microsoft.com/"
+    let kPopEndpoint = URL(string: "https://signedhttprequest.azurewebsites.net/api/validateSHR")!
     let kAuthority = "https://login.microsoftonline.com/common"
     let kRedirectUri = "msauth.com.microsoft.identitysample.MSALiOS://auth"
     
@@ -43,10 +44,12 @@ class ViewController: UIViewController, UITextFieldDelegate, URLSessionDelegate 
     var accessToken = String()
     var applicationContext : MSALPublicClientApplication?
     var webViewParamaters : MSALWebviewParameters?
+    var externalPopKeyPair: MSALExternalKeyPair?
 
     var loggingText: UITextView!
     var signOutButton: UIButton!
     var callGraphButton: UIButton!
+    var callExternalPopButton: UIButton!
     var usernameLabel: UILabel!
     
     var currentAccount: MSALAccount?
@@ -128,6 +131,13 @@ extension ViewController {
                                                                   redirectUri: kRedirectUri,
                                                                   authority: authority)
         self.applicationContext = try MSALPublicClientApplication(configuration: msalConfiguration)
+
+        do {
+            self.externalPopKeyPair = try ExternalPopKeyStore.loadOrCreate()
+        } catch {
+            self.updateLogging(text: "Unable to load the External AT PoP key: \(error)")
+        }
+
         self.initWebViewParams()
     }
     
@@ -308,6 +318,88 @@ extension ViewController {
             }.resume()
     }
 
+    @objc func callExternalPopAPI(_ sender: UIButton) {
+        self.loadCurrentAccount { account in
+            guard let currentAccount = account else {
+                self.acquireExternalPopTokenInteractively()
+                return
+            }
+
+            self.acquireExternalPopTokenSilently(currentAccount)
+        }
+    }
+
+    func acquireExternalPopTokenInteractively() {
+        guard let applicationContext = self.applicationContext else { return }
+        guard let webViewParameters = self.webViewParamaters else { return }
+        guard let authenticationScheme = self.externalPopScheme() else { return }
+
+        let parameters = MSALInteractiveTokenParameters(
+            scopes: kScopes,
+            webviewParameters: webViewParameters
+        )
+        parameters.promptType = .selectAccount
+        parameters.authenticationScheme = authenticationScheme
+
+        applicationContext.acquireToken(with: parameters) { result, error in
+            guard let result = result else {
+                self.updateLogging(text: "Could not acquire External AT PoP token: \(String(describing: error))")
+                return
+            }
+
+            self.accessToken = result.accessToken
+            self.updateCurrentAccount(account: result.account)
+            self.updateLogging(
+                text: "External AT PoP token acquired with key ID \(authenticationScheme.externalKeyPair?.keyId ?? "unknown")."
+            )
+        }
+    }
+
+    func acquireExternalPopTokenSilently(_ account: MSALAccount) {
+        guard let applicationContext = self.applicationContext else { return }
+        guard let authenticationScheme = self.externalPopScheme() else { return }
+
+        let parameters = MSALSilentTokenParameters(scopes: kScopes, account: account)
+        parameters.authenticationScheme = authenticationScheme
+
+        applicationContext.acquireTokenSilent(with: parameters) { result, error in
+            if let nsError = error as NSError?,
+                nsError.domain == MSALErrorDomain,
+                nsError.code == MSALError.interactionRequired.rawValue {
+                DispatchQueue.main.async {
+                    self.acquireExternalPopTokenInteractively()
+                }
+                return
+            }
+
+            guard let result = result else {
+                self.updateLogging(text: "Could not acquire External AT PoP token silently: \(String(describing: error))")
+                return
+            }
+
+            self.accessToken = result.accessToken
+            self.updateSignOutButton(enabled: true)
+            self.updateLogging(
+                text: "External AT PoP token acquired silently with key ID \(authenticationScheme.externalKeyPair?.keyId ?? "unknown")."
+            )
+        }
+    }
+
+    func externalPopScheme() -> MSALAuthenticationSchemePop? {
+        guard let keyPair = self.externalPopKeyPair else {
+            self.updateLogging(text: "External AT PoP key is unavailable.")
+            return nil
+        }
+
+        return MSALAuthenticationSchemePop(
+            httpMethod: .POST,
+            request: kPopEndpoint,
+            nonce: nil,
+            additionalParameters: nil,
+            externalKeyPair: keyPair
+        )
+    }
+
 }
 
 
@@ -460,6 +552,22 @@ extension ViewController {
         callGraphButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 120.0).isActive = true
         callGraphButton.widthAnchor.constraint(equalToConstant: 300.0).isActive = true
         callGraphButton.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
+
+        callExternalPopButton = UIButton()
+        callExternalPopButton.translatesAutoresizingMaskIntoConstraints = false
+        callExternalPopButton.setTitle("Acquire External AT PoP Token", for: .normal)
+        callExternalPopButton.setTitleColor(.blue, for: .normal)
+        callExternalPopButton.addTarget(
+            self,
+            action: #selector(callExternalPopAPI(_:)),
+            for: .touchUpInside
+        )
+        self.view.addSubview(callExternalPopButton)
+
+        callExternalPopButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        callExternalPopButton.topAnchor.constraint(equalTo: callGraphButton.bottomAnchor, constant: 10.0).isActive = true
+        callExternalPopButton.widthAnchor.constraint(equalToConstant: 300.0).isActive = true
+        callExternalPopButton.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
         
         // Add sign out button
         signOutButton = UIButton()
@@ -471,7 +579,7 @@ extension ViewController {
         self.view.addSubview(signOutButton)
         
         signOutButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        signOutButton.topAnchor.constraint(equalTo: callGraphButton.bottomAnchor, constant: 10.0).isActive = true
+        signOutButton.topAnchor.constraint(equalTo: callExternalPopButton.bottomAnchor, constant: 10.0).isActive = true
         signOutButton.widthAnchor.constraint(equalToConstant: 150.0).isActive = true
         signOutButton.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
         

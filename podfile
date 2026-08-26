@@ -1,7 +1,10 @@
 use_frameworks!
 
-platform :ios, '11.0'
+platform :ios, '17.0'
  
 target 'MSALiOS' do
-  pod 'MSAL'
+  pod 'MSAL',
+      :git => 'https://github.com/AzureAD/microsoft-authentication-library-for-objc.git',
+      :commit => '345945ed9',
+      :submodules => true
 end

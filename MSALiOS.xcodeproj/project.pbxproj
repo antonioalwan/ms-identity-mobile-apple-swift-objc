@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4DC17E926BAC0BBF780DD200 /* Pods_MSALiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD5263E088346F01270DB01B /* Pods_MSALiOS.framework */; };
+		A10000000000000000000001 /* ExternalPopKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* ExternalPopKeyStore.swift */; };
 		FBA79EA11E9A038700179A54 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA79EA01E9A038700179A54 /* AppDelegate.swift */; };
 		FBA79EA31E9A038700179A54 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA79EA21E9A038700179A54 /* ViewController.swift */; };
 		FBA79EA61E9A038700179A54 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FBA79EA41E9A038700179A54 /* Main.storyboard */; };
@@ -17,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		AD5263E088346F01270DB01B /* Pods_MSALiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MSALiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000002 /* ExternalPopKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalPopKeyStore.swift; sourceTree = "<group>"; };
 		C7CBF881BF504F0A15F7FD5C /* Pods-MSALiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MSALiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MSALiOS/Pods-MSALiOS.debug.xcconfig"; sourceTree = "<group>"; };
 		DF06CB9178C218430A5EDADB /* Pods-MSALiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MSALiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-MSALiOS/Pods-MSALiOS.release.xcconfig"; sourceTree = "<group>"; };
 		FBA79E9D1E9A038700179A54 /* MSALiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MSALiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -90,6 +92,7 @@
 			children = (
 				FBBE35B41E9DAE6C00460053 /* MSALiOS.entitlements */,
 				FBA79EA01E9A038700179A54 /* AppDelegate.swift */,
+				A10000000000000000000002 /* ExternalPopKeyStore.swift */,
 				FBA79EA21E9A038700179A54 /* ViewController.swift */,
 				FBA79EA41E9A038700179A54 /* Main.storyboard */,
 				FBA79EA71E9A038700179A54 /* Assets.xcassets */,
@@ -227,6 +230,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FBA79EA31E9A038700179A54 /* ViewController.swift in Sources */,
+				A10000000000000000000001 /* ExternalPopKeyStore.swift in Sources */,
 				FBA79EA11E9A038700179A54 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -376,7 +380,7 @@
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = MSALiOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.identitysample.MSALiOS;
@@ -397,7 +401,7 @@
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = MSALiOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.identitysample.MSALiOS;
