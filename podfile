@@ -5,6 +5,6 @@ platform :ios, '17.0'
 target 'MSALiOS' do
   pod 'MSAL',
       :git => 'https://github.com/AzureAD/microsoft-authentication-library-for-objc.git',
-      :commit => '345945ed9',
+      :branch => 'dev',
       :submodules => true
 end
